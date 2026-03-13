@@ -1,4 +1,4 @@
-package piece;
+package entity;
 
 import java.util.HashMap;
 
@@ -35,7 +35,7 @@ public final class Pawn extends Piece
 
         if (output){
             if (reach > 1){
-                reach--;
+                reach = 1;
                 paths[0].clearVisibility();
                 paths[0] = new Path(moveset[0], reach, Tile.class);
             }
@@ -46,10 +46,7 @@ public final class Pawn extends Piece
     
     public String toString(){
         String str = "P";
-
-        if (team.equals("black")){
-            str = str.toLowerCase();
-        }
+        if (team.equals("black")) str = str.toLowerCase();
 
         return str;
     }

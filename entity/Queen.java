@@ -1,11 +1,10 @@
-package piece;
-import main.Chess;
+package entity;
 
 public final class Queen extends Piece
 {
     public Queen(King k, int r, int c){
         super(k, r, c);
-        reach = Chess.INF_REACH;
+        reach = INF_REACH;
         
         moveset = new int[][]{
             {0,-1},{1,0},{0,1},{-1,0},
@@ -13,15 +12,11 @@ public final class Queen extends Piece
         };
         
         paths = new Path[moveset.length];
-        place();
     }
     
     public String toString(){
         String str = "Q";
-
-        if (team.equals("black")){
-            str = str.toLowerCase();
-        }
+        if (team.equals("black")) str = str.toLowerCase();
 
         return str;
     }

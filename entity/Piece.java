@@ -1,12 +1,14 @@
-package piece;
-import main.Chess;
-
+package entity;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import game.Chess;
 
 // This class represents one chess piece
 public abstract class Piece extends Entity
 {
+    public static int INF_REACH = Math.max(Chess.board.length - 1, Chess.board[0].length - 1);
+
     protected int reach;
     protected int[][] moveset;
     protected King king;
@@ -50,7 +52,7 @@ public abstract class Piece extends Entity
             Building stops once traversing off the board or reaching the first blocker.
         */
         public void build(int x, int y){
-            while (contents.size() < maxSize && !isBlocked()){
+            while (!isBlocked() && contents.size() < maxSize){
                 if (!Chess.legalBounds(x, y)){
                     return;
                 }
@@ -63,7 +65,7 @@ public abstract class Piece extends Entity
         }
 
         // The purpose of this method is to represent one step in Path building.
-        public void buildTo(Entity target){
+        private void buildTo(Entity target){
             contents.add(target);
             seenEntities.put(target, this);
             target.seenBy.put(Piece.this, canCapture(target));
@@ -71,12 +73,12 @@ public abstract class Piece extends Entity
 
         
         // The purpose of this method is to determine if an Entity is captureable along this Path.
-        public boolean canCapture(Entity target){
+        private boolean canCapture(Entity target){
             return !isAlly(target) && captureRule.isInstance(target);
         }
 
         // The purpose of this method is to determine if the end of a Path is a blocker
-        public boolean isBlocked(){
+        private boolean isBlocked(){
             if (contents.isEmpty()){
                 return false;
             }
@@ -134,18 +136,6 @@ public abstract class Piece extends Entity
     public boolean inCheck(){
         return king.isCapturable();
     }
-
-    @Override
-    public void removeFromBoard(){
-        super.removeFromBoard();
-        blind();
-    }
-
-    @Override
-    public void place(){
-        super.place();
-        buildPaths();
-    }
     
     /*
         The purpose of this method is to complete a move/capture on a board.
@@ -169,5 +159,17 @@ public abstract class Piece extends Entity
 
         buildPaths();
         return true;
+    }
+
+    @Override
+    public void removeFromBoard(){
+        super.removeFromBoard();
+        blind();
+    }
+
+    @Override
+    public void place(){
+        super.place();
+        buildPaths();
     }
 }

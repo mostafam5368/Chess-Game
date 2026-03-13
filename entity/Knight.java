@@ -1,4 +1,4 @@
-package piece;
+package entity;
 
 public final class Knight extends Piece
 {
@@ -12,15 +12,11 @@ public final class Knight extends Piece
         };
         
         paths = new Path[moveset.length];
-        place();
     }
     
     public String toString(){
         String str = "N";
-
-        if (team.equals("black")){
-            str = str.toLowerCase();
-        }
+        if (team.equals("black")) str = str.toLowerCase();
 
         return str;
     }   
