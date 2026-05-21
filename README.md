@@ -60,8 +60,8 @@ This program does not feature an AI opponent. This is a plan for future developm
 ### En Passant
 <img width="490" height="450" alt="20260511-2357-47 0637416" src="https://github.com/user-attachments/assets/68d6b854-3148-4e78-bcd5-8ef5e52e23dc" />
 
-### Turns
-<img width="490" height="450" alt="turnsmedium" src="https://github.com/user-attachments/assets/69c2d8e4-1ecc-467e-a7e3-6916415aaf93" />
+### Checkmate
+<img width="490" height="450" alt="20260521-1816-00 8951511" src="https://github.com/user-attachments/assets/1f801738-1416-46ae-a33e-b7582c3242b5" />
 
 
 ## How piece vision works
