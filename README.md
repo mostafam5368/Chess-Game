@@ -33,6 +33,7 @@ java main.Main
     * Promotion
     * En passant
 * __King Rules__: Does not allow user to make a move that puts or keeps their king in check.
+* __Checkmate Detection__: Game loop ends when either king is in check and cannot escape, capture, or block the checking piece(s).
 
 
 ## Usage
@@ -48,7 +49,7 @@ java main.Main
 * __Promoting__: Promote pawns by selecting the promotion piece from the pop-up menu when reaching the last rank.
 
 ### Opponent
-This program does not feature an AI opponent.  This is a plan for future development. It is meant to be used by two people at the same screen with the board flipping its orientation every turn.
+This program does not feature an AI opponent. This is a plan for future development. It is meant to be used locally by two people with the board flipping its orientation every turn.
 
 
 ## Game Demonstration
@@ -59,8 +60,8 @@ This program does not feature an AI opponent.  This is a plan for future develop
 ### En Passant
 <img width="490" height="450" alt="20260511-2357-47 0637416" src="https://github.com/user-attachments/assets/68d6b854-3148-4e78-bcd5-8ef5e52e23dc" />
 
-### Turns
-<img width="490" height="450" alt="turnsmedium" src="https://github.com/user-attachments/assets/69c2d8e4-1ecc-467e-a7e3-6916415aaf93" />
+### Checkmate
+<img width="490" height="450" alt="20260521-1816-00 8951511" src="https://github.com/user-attachments/assets/1f801738-1416-46ae-a33e-b7582c3242b5" />
 
 
 ## How piece vision works
@@ -70,6 +71,6 @@ When a square on a path is affected by a move or capture, the piece the path bel
 
 
 ## Development Notebook
-While working on this as my senior project, I was required to document my work issue by issue through the GitHub Projects feature. The issues feature more in-depth explanations, thought processes, challenges that I encountered, and the time it took me to add each feature.
+While working on this as my senior project, I was required to document my work issue by issue through GitHub Projects. The issues include more in-depth explanations, thought processes, and the time it took me to add each feature.
 
 Access GitHub Project here: [Mostafa PPP 2025](https://github.com/users/mostafam5368/projects/1)
