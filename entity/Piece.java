@@ -27,11 +27,11 @@ public abstract class Piece extends Entity
     }
     
     // This class collects Entities in a direction on the board.
-    public class Path {
+    protected class Path {
         private int[] direction;
         private int maxSize;
         private Class<? extends Entity> captureRule;
-        public ArrayList<Entity> contents;
+        protected ArrayList<Entity> contents;
 
 
         protected Path(int[] dir, int m){
@@ -45,14 +45,14 @@ public abstract class Piece extends Entity
             contents = new ArrayList<>();
         }
 
-        // This method represents one step in Path building.
+        // Build forward once
         private void stepTo(Entity target){
             target.seenBy.put(Piece.this, canCapture(target));
             seenEntities.put(target, this);
             contents.add(target);
         }
 
-        // This method represents one step in Path shrinking.
+        // Shrink away once
         private void stepFrom(Entity target){
             target.seenBy.remove(Piece.this);
             seenEntities.remove(target);
@@ -63,13 +63,10 @@ public abstract class Piece extends Entity
             build(row + direction[1], col + direction[0]);
         }
 
-        /*
-            The purpose of this method is to traverse the board in one direction and collect Entities.
-            Building stops once traversing off the board or reaching the first blocker.
-        */
+        //  Traverse the board in a direction and collect Entities. Stop when off the board or at the first blocker
         protected void build(int x, int y){
             while (contents.size() < maxSize){
-                if (!Chess.legalBounds(x, y)){
+                if (!Chess.onBoard(x, y)){
                     return;
                 }
 
@@ -85,15 +82,15 @@ public abstract class Piece extends Entity
         }
 
         
-        // The purpose of this method is to determine if an Entity is captureable along this Path.
+        // Return if an Entity is captureable along this Path
         private boolean canCapture(Entity target){
             return !isAlly(target) && captureRule.isInstance(target);
         }
 
-        // The purpose of this method is to build or shrink a Path to reflect a piece's vision on the board.
-        protected void refreshAt(Entity e){
-            Entity refreshedEntity = Chess.board[e.row][e.col];
-            int indexOnPath = contents.indexOf(e);
+        // Build or shrink a Path to reflect a piece's vision on the board
+        protected void refreshAt(Entity oldEntity){
+            Entity refreshedEntity = Chess.board[oldEntity.row][oldEntity.col];
+            int indexOnPath = contents.indexOf(oldEntity);
 
             contents.set(indexOnPath, refreshedEntity);
             seenEntities.put(refreshedEntity, this);
@@ -114,7 +111,7 @@ public abstract class Piece extends Entity
     }
     
 
-    // The purpose of this method is to build Paths in every direction the Piece is allowed.
+    // Build Paths in every direction the Piece is allowed
     protected void buildPaths(){
         for (int[] dir: moveset){
             Path path = new Path(dir, reach);
@@ -122,8 +119,8 @@ public abstract class Piece extends Entity
         }
     }
 
-    // The purpose of this method is to remove move legality from all Entities that can be seen.
-    protected void blind(){
+    // Remove move legality from all Entities that can be seen
+    private void blind(){
         for (Entity e: seenEntities.keySet()){
             e.seenBy.remove(this);
         }
@@ -131,10 +128,7 @@ public abstract class Piece extends Entity
         seenEntities.clear();
     }
     
-    /*
-        The purpose of this method is to complete a move/capture on a board.
-        A boolean value is returned which represents if the move was completed with respect to check.
-    */
+    // Complete a move/capture on the board. Return if the move was completed with respect to check
     public boolean move(int x, int y){
         int startingRow = row;
         int startingCol = col;
@@ -157,7 +151,7 @@ public abstract class Piece extends Entity
         return true;
     }
 
-    // The purpose of this method is to determine if the king can be captured.
+    // Return if this Piece's king can be captured
     public boolean inCheck(){
         return king.isCapturable();
     }
@@ -173,7 +167,7 @@ public abstract class Piece extends Entity
     }
 
     @Override
-    public void removeFromBoard(){
+    protected void removeFromBoard(){
         super.removeFromBoard();
         blind();
     }

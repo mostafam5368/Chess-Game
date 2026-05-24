@@ -22,17 +22,26 @@ public final class Rook extends Piece
     }
 
     @Override
-    public boolean move(int x, int y){
-        boolean completed = super.move(x, y);
+    public void place(){
+        super.place();
 
-        if (completed){
+        if (!hasMoved && row == king.row && (col == Chess.board.length - 1 || col == 0)){
+            Chess.board[king.row][kingCastle].seenBy.put(king, true);
+        }
+    }
+
+    @Override
+    public boolean move(int x, int y){
+        boolean tryMove = super.move(x, y);
+
+        if (tryMove){
             if (!hasMoved){
                 Chess.board[king.row][kingCastle].seenBy.replace(king, false);
                 hasMoved = true;
             }
         }
 
-        return completed;
+        return tryMove;
     }
 
     @Override

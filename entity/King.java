@@ -5,12 +5,15 @@ import game.Chess;
 public final class King extends Piece
 {
     public int materialGained;
+    public boolean win;
 
     public King(String t, int r, int c){
         super(t, r, c);
         materialValue = 0;
         reach = 1;
+
         materialGained = 0;
+        win = false;
         
         moveset = new int[][]{
             {0,-1},{1,0},{0,1},{-1,0},
@@ -18,23 +21,12 @@ public final class King extends Piece
         };
     }
 
-    @Override
-    public void place(){
-        capture(Chess.board[row][col]);
+    public void buildCastlingPaths(){
+        Path kingSide = new Path(new int[]{2, 0}, 1, Tile.class);
+        kingSide.build();
 
-        for (int[] dir: moveset){
-            if (dir[1] == 0){
-                Path castlingPath = new Path(new int[]{dir[0] * 2, 0}, 1, Tile.class);
-                castlingPath.build();
-
-                Path sidePath = new Path(dir, reach);
-                sidePath.build();
-            }
-            else {
-                Path path = new Path(dir, reach);
-                path.build();
-            }
-        }
+        Path queenSide = new Path(new int[]{-2, 0}, 1, Tile.class);
+        queenSide.build();
     }
 
     @Override
@@ -50,9 +42,9 @@ public final class King extends Piece
             }
 
             if (legalCastle(castlingRook)){
-                boolean completed = super.move(x, y);
-                if (completed) castle(castlingRook);
-                return completed;
+                boolean tryMove = super.move(x, y);
+                if (tryMove) castle(castlingRook);
+                return tryMove;
             }
             else {
                 return false;
@@ -62,7 +54,10 @@ public final class King extends Piece
         return super.move(x, y);
     }
 
-    public boolean legalCastle(Rook r){
+    // Return if this King can castle with the Rook in this position
+    private boolean legalCastle(Rook r){
+        if (inCheck() || r.isCapturable()) return false;
+
         int rightOrLeft = -(col - r.col) / Math.abs(col - r.col);
 
         for (int i = col + rightOrLeft; i >= col - 2 && i < col + 2; i += rightOrLeft){
@@ -77,10 +72,11 @@ public final class King extends Piece
             }
         }
 
-        return !inCheck() && !r.isCapturable();
+        return true;
     }
 
-    public void castle(Rook r){
+    // Move the Rook to the right or left of this King
+    private void castle(Rook r){
         if (r.col < col){
             r.move(row, col + 1);
         }
@@ -94,45 +90,13 @@ public final class King extends Piece
         return isCapturable();
     }
 
+    // Return if this King is in checkmate
     public boolean inCheckmate(){
-        if (!inCheck()) return false;
-
-        int originalRow = row;
-        int originalCol = col;
-        boolean canMove = false;
-
-        // try to move in every direction
-        for (int[] dir: moveset){
-            int x = row + dir[1];
-            int y = col + dir[0];
-
-            if (Chess.legalBounds(x, y)){
-                Entity target = Chess.board[x][y];
-
-                if (target.seenBy.get(this)){
-                    boolean tryMove = move(x, y);
-
-                    if (tryMove){
-                        canMove = true;
-
-                        target.place();
-                        capture(Chess.board[originalRow][originalCol]);
-                        buildPaths();
-
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (canMove){
-            return false;
-        }
+        if (!inCheck() || canMove()) return false;
 
         ArrayList<Piece> checkingPieces = capturableBy(Chess.opponents.get(this).team);
 
-        // if it's a single checking piece that can be captured, not checkmate
-        if (checkingPieces.size() == 1){
+        if (checkingPieces.size() < 2){
             Piece checkingPiece = checkingPieces.get(0);
             ArrayList<Piece> canCapture = checkingPiece.capturableBy(team);
 
@@ -157,6 +121,39 @@ public final class King extends Piece
         }
 
         return true;
+    }
+
+    // Return if this King can move to the surrounding squares without being in check
+    private boolean canMove(){
+        int originalRow = row;
+        int originalCol = col;
+
+        boolean output = false;
+
+        for (int[] dir: moveset){
+            int x = row + dir[1];
+            int y = col + dir[0];
+
+            if (Chess.onBoard(x, y)){
+                Entity target = Chess.board[x][y];
+
+                if (target.seenBy.get(this)){
+                    boolean tryMove = move(x, y);
+
+                    if (tryMove){
+                        output = true;
+
+                        target.place();
+                        capture(Chess.board[originalRow][originalCol]);
+                        buildPaths();
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        return output;
     }
     
     public String toString(){
