@@ -1,8 +1,7 @@
 package game;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
-import java.util.ArrayDeque;
 import entity.*;
 
 public class Chess
@@ -14,8 +13,6 @@ public class Chess
     public static King black = new King("Black", 0, 4);
 
     public static HashMap<King, King> opponents = new HashMap<>();
-    public static ArrayDeque<String> recentMoves = new ArrayDeque<>();
-
     private static int turn = 0;
     
     // Begin game loop
@@ -26,11 +23,10 @@ public class Chess
         opponents.put(black, white);
 
         prepBoard();
-        fillBoard();
+        placePieces();
 
         do {
             playTurn();
-
             white.win = black.inCheckmate();
             black.win = white.inCheckmate();
         } while (!white.win && !black.win);
@@ -41,11 +37,8 @@ public class Chess
         if (white.win){
             System.out.println(white.team + " win.");
         }
-        else if (black.win){
-            System.out.println(black.team + " win.");
-        }
         else {
-            System.out.println("Draw.");
+            System.out.println(black.team + " win.");
         }
     }
 
@@ -60,12 +53,6 @@ public class Chess
         
         turn++;
         prompt(toPlay);
-
-        if (recentMoves.size() > opponents.size()){
-            for (int i = 0; i < opponents.size(); i++){
-                recentMoves.poll();
-            }
-        }
     }
 
     // Return if the given x and y are legal bounds
@@ -83,7 +70,7 @@ public class Chess
     }
     
     // Put pieces on the board in standard chess formation
-    private static void fillBoard(){
+    private static void placePieces(){
         white.place();
         white.buildCastlingPaths();
         
@@ -138,7 +125,7 @@ public class Chess
         String heightSpacing = "\n";
         String widthSpacing = "     ";
 
-        if (turn % 2 == 0){   // white view
+        if (turn % 2 == 0 || true){   // white view
             System.out.println(blackMaterial);
 
             for (int i = 0; i < board.length; i++){
@@ -182,21 +169,13 @@ public class Chess
             System.out.println();
             System.out.println(blackMaterial);
         }
-
-        System.out.print((turn - 1)/opponents.size() + 1 + ". \t");
-
-        for (String recentMove: recentMoves){
-            System.out.print(recentMove + "\t");
-        }
-
-        System.out.println();
     }
 
     // Prompt and complete a move
     private static void prompt(King player){
         int x, y = 0;
         String move;
-        ArrayList<Piece> filteredPieces;
+        List<Piece> filteredPieces;
 
         do {
             do {
@@ -249,39 +228,19 @@ public class Chess
 
         Entity target = Chess.board[x][y];
         Piece moving = filteredPieces.get(0);
-        String copyOfMove = move;
 
-        if (target.materialValue > 0){
-            if (moving instanceof Pawn) copyOfMove = (char)(moving.col + 'a') + "x" + copyOfMove;
-            else copyOfMove = copyOfMove.charAt(0) + "x" + copyOfMove.substring(1);
-            
-            player.materialGained += target.materialValue;
-        }
-
-        recentMoves.add(copyOfMove);
-
-        boolean tryMove = moving.move(x, y);
-
-        if (!tryMove){
-            recentMoves.poll();
-            player.materialGained -= target.materialValue;
+        boolean moveAttempt = moving.attempt(x, y);
+        
+        if (!moveAttempt){
             prompt(player);
             return;
         }
 
-        if (opponents.get(player).inCheckmate()){
-            recentMoves.poll();
-            recentMoves.add(copyOfMove + "#");
-        }
-        else if (opponents.get(player).inCheck()){
-            recentMoves.poll();
-            recentMoves.add(copyOfMove + "+");
-        }
+        player.materialGained += target.materialValue;
     }
 
     // Return a filtered list of Pieces that are on the given row and column
-    private static ArrayList<Piece> disambiguate(ArrayList<Piece> potentials, String disambig){
-        ArrayList<Piece> output = new ArrayList<>();
+    private static List<Piece> disambiguate(List<Piece> potentials, String disambig){
         int[] arr = new int[]{'.', '.'};
 
         for (int i = 0; i < disambig.length(); i++){
@@ -295,11 +254,9 @@ public class Chess
             }
         }
 
-        for (Piece piece: potentials){
-            if ((arr[0] == '.' || piece.col == arr[0]) && (arr[1] == '.' || piece.row == arr[1])){
-                output.add(piece);
-            }
-        }
+        List<Piece> output = potentials.stream()
+        .filter(piece -> (arr[0] == '.' || piece.col == arr[0]) && (arr[1] == '.' || piece.row == arr[1]))
+        .toList();
 
         return output;
     }

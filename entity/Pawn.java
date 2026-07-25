@@ -52,13 +52,13 @@ public final class Pawn extends Piece
             }
         }
     }
-    
-    @Override
-    public boolean move(int x, int y){
-        int startingRow = row;
-        boolean tryMove = super.move(x, y);
 
-        if (tryMove){
+    @Override
+    public boolean attempt(int x, int y){
+        int startingRow = row;
+        boolean success = super.attempt(x, y);
+
+        if (success){
             if (Math.abs(startingRow - x) == 2){
                 HashMap<Pawn, Integer> enPassant = new HashMap<>();
                 
@@ -95,9 +95,6 @@ public final class Pawn extends Piece
                             new Tile(row, col).place();
 
                             Chess.opponents.get(king).materialGained += materialValue;
-
-                            Chess.recentMoves.poll();
-                            Chess.recentMoves.add((char)(enPassant.get(Chess.board[rowBehind][col]) + 'a') + "x" + (char)(col + 'a') + (char)('8' - rowBehind));
                         }
                         else {
                             // remove move access
@@ -118,8 +115,8 @@ public final class Pawn extends Piece
                 promote();
             }
         }
-        
-        return tryMove;
+
+        return success;
     }
 
     private void promote(){

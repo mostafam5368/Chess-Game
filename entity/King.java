@@ -1,5 +1,7 @@
 package entity;
 import java.util.ArrayList;
+import java.util.List;
+
 import game.Chess;
 
 public final class King extends Piece
@@ -30,7 +32,7 @@ public final class King extends Piece
     }
 
     @Override
-    public boolean move(int x, int y){
+    public boolean attempt(int x, int y){
         if (Math.abs(col - y) == 2){
             Rook castlingRook;
 
@@ -42,31 +44,29 @@ public final class King extends Piece
             }
 
             if (legalCastle(castlingRook)){
-                boolean tryMove = super.move(x, y);
-                if (tryMove) castle(castlingRook);
-                return tryMove;
+                boolean success = super.attempt(x, y);
+                if (success) castle(castlingRook);
+                return success;
             }
             else {
                 return false;
             }
         }
 
-        return super.move(x, y);
+        return super.attempt(x, y);
     }
 
     // Return if this King can castle with the Rook in this position
     private boolean legalCastle(Rook r){
         if (inCheck() || r.isCapturable()) return false;
 
-        int rightOrLeft = -(col - r.col) / Math.abs(col - r.col);
-
-        for (int i = col + rightOrLeft; i >= col - 2 && i < col + 2; i += rightOrLeft){
+        for (int i = col + r.dirRelativeToKing; i >= col - 2 && i < col + 2; i += r.dirRelativeToKing){
             if (Chess.board[row][i].capturableBy(Chess.opponents.get(this).team).size() > 0){
                 return false;
             }
         }
 
-        for (int i = col + rightOrLeft; i > 0 && i < Chess.board[row].length - 1; i += rightOrLeft){
+        for (int i = col + r.dirRelativeToKing; i > 0 && i < Chess.board[row].length - 1; i += r.dirRelativeToKing){
             if (Chess.board[row][i].isOccupied()){
                 return false;
             }
@@ -77,12 +77,7 @@ public final class King extends Piece
 
     // Move the Rook to the right or left of this King
     private void castle(Rook r){
-        if (r.col < col){
-            r.move(row, col + 1);
-        }
-        else if (r.col > col){
-            r.move(row, col - 1);
-        }
+        r.move(row, col - r.dirRelativeToKing);
     }
 
     @Override
@@ -92,13 +87,13 @@ public final class King extends Piece
 
     // Return if this King is in checkmate
     public boolean inCheckmate(){
-        if (!inCheck() || canMove()) return false;
+        if (!inCheck() || hasLegalMove()) return false;
 
-        ArrayList<Piece> checkingPieces = capturableBy(Chess.opponents.get(this).team);
+        List<Piece> checkingPieces = capturableBy(Chess.opponents.get(this).team);
 
         if (checkingPieces.size() < 2){
             Piece checkingPiece = checkingPieces.get(0);
-            ArrayList<Piece> canCapture = checkingPiece.capturableBy(team);
+            List<Piece> canCapture = checkingPiece.capturableBy(team);
 
             if (canCapture.size() > 0){
                 if (!(canCapture.size() == 1 && canCapture.contains(this))){
@@ -110,7 +105,7 @@ public final class King extends Piece
 
             for (int i = 0; i < checkingPath.contents.size() - 1; i++){
                 Entity entity = checkingPath.contents.get(i);
-                ArrayList<Piece> canBlock = entity.capturableBy(team);
+                List<Piece> canBlock = entity.capturableBy(team);
 
                 if (canBlock.size() > 0){
                     if (!(canBlock.size() == 1 && canBlock.contains(this))){
@@ -121,39 +116,6 @@ public final class King extends Piece
         }
 
         return true;
-    }
-
-    // Return if this King can move to the surrounding squares without being in check
-    private boolean canMove(){
-        int originalRow = row;
-        int originalCol = col;
-
-        boolean output = false;
-
-        for (int[] dir: moveset){
-            int x = row + dir[1];
-            int y = col + dir[0];
-
-            if (Chess.onBoard(x, y)){
-                Entity target = Chess.board[x][y];
-
-                if (target.seenBy.get(this)){
-                    boolean tryMove = move(x, y);
-
-                    if (tryMove){
-                        output = true;
-
-                        target.place();
-                        capture(Chess.board[originalRow][originalCol]);
-                        buildPaths();
-
-                        break;
-                    }
-                }
-            }
-        }
-
-        return output;
     }
     
     public String toString(){

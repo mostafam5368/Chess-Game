@@ -1,7 +1,8 @@
 package entity;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+
 import game.Chess;
 
 // This class represents a Tile or Piece on the board.
@@ -35,16 +36,17 @@ public abstract class Entity
     }
 
     // Register this Entity on the board. Notify Pieces that previously saw the target Entity
-    protected void capture(Entity target){
-        row = target.row;
-        col = target.col;
+    protected void setAt(int x, int y){
+        row = x;
+        col = y;
+        Entity target = Chess.board[x][y];
         Chess.board[row][col] = this;
         target.removeFromBoard();
     }
 
     // Register this Entity on the board in its assigned location
     public void place(){
-        capture(Chess.board[row][col]);
+        setAt(row, col);
     }
     
     // Remove this Entity from the board in the case of a move or capture. Notify Pieces that previously saw this Entity
@@ -63,23 +65,15 @@ public abstract class Entity
     }
 
     // Return the Pieces of the specified team that can capture this Entity
-    public ArrayList<Piece> capturableBy(String t){
+    public List<Piece> capturableBy(String t){
         return capturableBy(t, Piece.class);
     }
 
     // Return the Pieces of the specified team and type that can capture this Entity
-    public ArrayList<Piece> capturableBy(String t, Class<? extends Piece> type){
-        ArrayList<Piece> output = new ArrayList<>();
-
-        for (Piece piece: seenBy.keySet()){
-            if (seenBy.get(piece)){
-                if (type.isInstance(piece) && piece.team.equals(t)){
-                    output.add(piece);
-
-                    if (type == King.class) break;
-                }
-            }
-        }
+    public List<Piece> capturableBy(String t, Class<? extends Piece> type){
+        List<Piece> output = seenBy.keySet().stream()
+        .filter(p -> seenBy.get(p) && type.isInstance(p) && p.team.equals(t))
+        .toList();
 
         return output;
     }

@@ -1,6 +1,8 @@
 package entity;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+
 import game.Chess;
 
 // This class represents one chess piece
@@ -127,28 +129,48 @@ public abstract class Piece extends Entity
 
         seenEntities.clear();
     }
-    
-    // Complete a move/capture on the board. Return if the move was completed with respect to check
-    public boolean move(int x, int y){
+
+    public void move(int x, int y){
+        new Tile(row, col).place();
+        setAt(x, y);
+        buildPaths();
+    }
+
+    public boolean attempt(int x, int y){
         int startingRow = row;
         int startingCol = col;
 
-        new Tile(row, col).place();
-
         Entity target = Chess.board[x][y];
-        capture(target);
+        move(x, y);
 
         if (inCheck()){
+            move(startingRow, startingCol);
             target.place();
-
-            capture(Chess.board[startingRow][startingCol]);
-            buildPaths();
-
             return false;
         }
 
-        buildPaths();
         return true;
+    }
+
+    public boolean hasLegalMove(){
+        int originalRow = row;
+        int originalCol = col;
+
+        List<Entity> possibleCaptures = seenEntities.keySet().stream()
+        .filter(e -> e.seenBy.getOrDefault(this, false))
+        .toList();
+
+        for (Entity e: possibleCaptures){
+            boolean success = attempt(e.row, e.col);
+
+            if (success){
+                move(originalRow, originalCol);
+                e.place();
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // Return if this Piece's king can be captured
@@ -160,10 +182,6 @@ public abstract class Piece extends Entity
     public void place(){
         super.place();
         buildPaths();
-
-        // if (materialValue > 0){
-        //     king.materialGained += materialValue;
-        // }
     }
 
     @Override

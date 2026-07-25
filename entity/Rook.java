@@ -5,6 +5,7 @@ public final class Rook extends Piece
 {
     private boolean hasMoved;
     private int kingCastle;
+    protected int dirRelativeToKing;
 
     public Rook(King k, int r, int c){
         super(k, r, c);
@@ -13,8 +14,8 @@ public final class Rook extends Piece
 
         hasMoved = false;
 
-        int rightOrLeft = -(king.col - col) / Math.abs(king.col - col);
-        kingCastle = king.col + rightOrLeft * 2;
+        dirRelativeToKing = -(king.col - col) / Math.abs(king.col - col);
+        kingCastle = king.col + dirRelativeToKing * 2;
         
         moveset = new int[][]{
             {0,-1},{1,0},{0,1},{-1,0}
@@ -31,17 +32,17 @@ public final class Rook extends Piece
     }
 
     @Override
-    public boolean move(int x, int y){
-        boolean tryMove = super.move(x, y);
+    public boolean attempt(int x, int y){
+        boolean success = super.attempt(x, y);
 
-        if (tryMove){
+        if (success){
             if (!hasMoved){
                 Chess.board[king.row][kingCastle].seenBy.replace(king, false);
                 hasMoved = true;
             }
         }
 
-        return tryMove;
+        return success;
     }
 
     @Override
