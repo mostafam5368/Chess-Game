@@ -11,7 +11,7 @@ public abstract class Entity
     // Instance Variables
     public String team;
     public int row, col;
-    protected HashMap<Piece, Boolean> seenBy;
+    public HashMap<Piece, Boolean> seenBy;
     public int materialValue;
 
 
@@ -33,6 +33,15 @@ public abstract class Entity
     }
     public boolean isCapturable(){
         return seenBy.containsValue(true);
+    }
+
+    // Return the list of Pieces of the specified team that can capture this Entity
+    public List<Piece> capturableBy(String t){
+        List<Piece> capturingPieces = seenBy.keySet().stream()
+        .filter(p -> seenBy.get(p) && p.team.equals(t))
+        .toList();
+
+        return capturingPieces;
     }
 
     // Register this Entity on the board. Notify Pieces that previously saw the target Entity
@@ -62,19 +71,5 @@ public abstract class Entity
         for (Piece piece: copy){
             piece.seenEntities.get(this).refreshAt(this);
         }
-    }
-
-    // Return the Pieces of the specified team that can capture this Entity
-    public List<Piece> capturableBy(String t){
-        return capturableBy(t, Piece.class);
-    }
-
-    // Return the Pieces of the specified team and type that can capture this Entity
-    public List<Piece> capturableBy(String t, Class<? extends Piece> type){
-        List<Piece> output = seenBy.keySet().stream()
-        .filter(p -> seenBy.get(p) && type.isInstance(p) && p.team.equals(t))
-        .toList();
-
-        return output;
     }
 }

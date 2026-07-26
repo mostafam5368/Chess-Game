@@ -43,16 +43,13 @@ public class Chess
     }
 
     public static void playTurn(){
-        King toPlay;
-
-        if (turn % 2 == 0) toPlay = white;
-        else toPlay = black;
-        
         clearScreen();
         printBoard();
-        
+
+        if (turn % 2 == 0) prompt(white);
+        else prompt(black);
+
         turn++;
-        prompt(toPlay);
     }
 
     // Return if the given x and y are legal bounds
@@ -125,7 +122,7 @@ public class Chess
         String heightSpacing = "\n";
         String widthSpacing = "     ";
 
-        if (turn % 2 == 0 || true){   // white view
+        if (turn % 2 == 0){   // white view
             System.out.println(blackMaterial);
 
             for (int i = 0; i < board.length; i++){
@@ -174,90 +171,40 @@ public class Chess
     // Prompt and complete a move
     private static void prompt(King player){
         int x, y = 0;
-        String move;
         List<Piece> filteredPieces;
+        Notation notation;
 
         do {
+            String moveInput;
+
             do {
                 System.out.print("> ");
 
-                move = reader.nextLine();
+                moveInput = reader.nextLine();
 
-                while (move.length() < 2){
-                    move = reader.nextLine();
+                while (moveInput.length() < 2){
+                    moveInput = reader.nextLine();
                 }
 
-                x = '8' - move.charAt(move.length() - 1);
-                y = move.charAt(move.length() - 2) - 'a';
+                x = '8' - moveInput.charAt(moveInput.length() - 1);
+                y = moveInput.charAt(moveInput.length() - 2) - 'a';
             } while (!onBoard(x, y));
-
-            Class<? extends Piece> type;
-
-            switch (move.charAt(0)){
-                case 'Q':
-                    type = Queen.class;
-                    break;
-                case 'R':
-                    type = Rook.class;
-                    break;
-                case 'N':
-                    type = Knight.class;
-                    break;
-                case 'B':
-                    type = Bishop.class;
-                    break;
-                case 'K':
-                    type = King.class;
-                    break;
-                default:
-                    type = Pawn.class;
-                    break;
-            }
-
-            String given;
-
-            if (type == Pawn.class){
-                given = move.substring(0, move.length() - 2);
-            }
-            else {
-                given = move.substring(1, move.length() - 2);
-            }
             
-            filteredPieces = disambiguate(board[x][y].capturableBy(player.team, type), given);
+           notation = new Notation(moveInput);
+           filteredPieces = notation.possibleMovingPieces(player.team);
         } while (filteredPieces.size() > 1 || filteredPieces.isEmpty());
 
-        Entity target = Chess.board[x][y];
         Piece moving = filteredPieces.get(0);
-
-        boolean moveAttempt = moving.attempt(x, y);
         
-        if (!moveAttempt){
+        if (!moving.attempt(x, y)){
             prompt(player);
             return;
         }
 
-        player.materialGained += target.materialValue;
+        player.materialGained += notation.targetSquare.materialValue;
     }
 
-    // Return a filtered list of Pieces that are on the given row and column
-    private static List<Piece> disambiguate(List<Piece> potentials, String disambig){
-        int[] arr = new int[]{'.', '.'};
-
-        for (int i = 0; i < disambig.length(); i++){
-            char current = disambig.charAt(i);
-
-            if (Character.isLetter(current)){
-                arr[0] = current - 'a';
-            }
-            if (Character.isDigit(current)){
-                arr[1] = '8' - current;
-            }
-        }
-
-        List<Piece> output = potentials.stream()
-        .filter(piece -> (arr[0] == '.' || piece.col == arr[0]) && (arr[1] == '.' || piece.row == arr[1]))
-        .toList();
-
-        return output;
+    public static boolean legalBounds(int x, int y){
+        return (x < board.length && x >= 0) && (y < board[0].length && y >= 0);
     }
 }

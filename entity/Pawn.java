@@ -1,5 +1,4 @@
 package entity;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import game.Chess;
