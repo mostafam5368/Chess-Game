@@ -90,27 +90,30 @@ public final class King extends Piece
         if (!inCheck() || hasLegalMove()) return false;
 
         List<Piece> checkingPieces = capturableBy(Chess.opponents.get(this).team);
-
+        
         if (checkingPieces.size() < 2){
             Piece checkingPiece = checkingPieces.get(0);
-            List<Piece> canCapture = checkingPiece.capturableBy(team);
+            List<Piece> canCapture = new ArrayList<>(checkingPiece.capturableBy(team));
+
+            canCapture.remove(this);
 
             if (canCapture.size() > 0){
-                if (!(canCapture.size() == 1 && canCapture.contains(this))){
-                    return false;
-                }
+                return false;
             }
 
             Path checkingPath = checkingPiece.seenEntities.get(this);
 
             for (int i = 0; i < checkingPath.contents.size() - 1; i++){
                 Entity entity = checkingPath.contents.get(i);
-                List<Piece> canBlock = entity.capturableBy(team);
+                List<Piece> canBlock = entity.capturableBy(team).stream()
+                .filter(p -> p.hasLegalMove())
+                .toList();
+
+                canBlock = new ArrayList<>(canBlock);
+                canBlock.remove(this);
 
                 if (canBlock.size() > 0){
-                    if (!(canBlock.size() == 1 && canBlock.contains(this))){
-                        return false;
-                    }
+                    return false;
                 }
             }
         }

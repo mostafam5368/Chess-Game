@@ -13,7 +13,7 @@ public abstract class Piece extends Entity
     protected int reach;
     protected int[][] moveset;
     protected King king;
-    protected HashMap<Entity, Path> seenEntities;
+    public HashMap<Entity, Path> seenEntities;
 
     // Royal
     public Piece(String t, int r, int c){
@@ -144,8 +144,8 @@ public abstract class Piece extends Entity
         move(x, y);
 
         if (inCheck()){
-            move(startingRow, startingCol);
             target.place();
+            setAt(startingRow, startingCol);
             return false;
         }
 
@@ -164,7 +164,7 @@ public abstract class Piece extends Entity
             boolean success = attempt(e.row, e.col);
 
             if (success){
-                move(originalRow, originalCol);
+                setAt(originalRow, originalCol);
                 e.place();
                 return true;
             }

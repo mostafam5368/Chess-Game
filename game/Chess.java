@@ -23,9 +23,20 @@ public class Chess
         opponents.put(black, white);
 
         prepBoard();
-        placePieces();
+        // placePieces();
+
+        white.place();
+        white.move(7, 0);
+        new Pawn(white, 6, 0).place();
+        new Rook(white, 6, 1).place();
+        new Bishop(black, 4, 3).place();
+        Queen checking = new Queen(black, 0, 7);
+        checking.place();
+
+        turn++;
 
         do {
+            System.out.println(checking.seenEntities.keySet());
             playTurn();
             white.win = black.inCheckmate();
             black.win = white.inCheckmate();

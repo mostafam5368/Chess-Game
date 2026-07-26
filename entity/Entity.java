@@ -11,7 +11,7 @@ public abstract class Entity
     // Instance Variables
     public String team;
     public int row, col;
-    public HashMap<Piece, Boolean> seenBy;
+    protected HashMap<Piece, Boolean> seenBy;
     public int materialValue;
 
 
