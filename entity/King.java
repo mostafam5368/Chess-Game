@@ -26,7 +26,6 @@ public final class King extends Piece
     public void buildCastlingPaths(){
         Path kingSide = new Path(new int[]{2, 0}, 1, Tile.class);
         kingSide.build();
-
         Path queenSide = new Path(new int[]{-2, 0}, 1, Tile.class);
         queenSide.build();
     }
@@ -90,8 +89,8 @@ public final class King extends Piece
         if (!inCheck() || hasLegalMove()) return false;
 
         List<Piece> checkingPieces = capturableBy(Chess.opponents.get(this).team);
-        
-        if (checkingPieces.size() < 2){
+
+        if (checkingPieces.size() == 1){
             Piece checkingPiece = checkingPieces.get(0);
             List<Piece> canCapture = new ArrayList<>(checkingPiece.capturableBy(team));
 
@@ -103,19 +102,21 @@ public final class King extends Piece
 
             Path checkingPath = checkingPiece.seenEntities.get(this);
 
-            for (int i = 0; i < checkingPath.contents.size() - 1; i++){
-                Entity entity = checkingPath.contents.get(i);
-                List<Piece> canBlock = entity.capturableBy(team).stream()
-                .filter(p -> p.hasLegalMove())
-                .toList();
+            if (checkingPath.contents.size() > 1){
+                for (int i = 0; i < checkingPath.contents.size() - 1; i++){
+                    Entity entity = checkingPath.contents.get(i);
+                    List<Piece> canBlock = entity.capturableBy(team).stream()
+                    .filter(piece -> piece.hasLegalMove())
+                    .toList();
 
-                canBlock = new ArrayList<>(canBlock);
-                canBlock.remove(this);
+                    canBlock = new ArrayList<>(canBlock);
+                    canBlock.remove(this);
 
-                if (canBlock.size() > 0){
-                    return false;
+                    if (canBlock.size() > 0){
+                        return false;
+                    }
                 }
-            }
+            }  
         }
 
         return true;

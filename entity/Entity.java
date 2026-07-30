@@ -44,28 +44,33 @@ public abstract class Entity
         return capturingPieces;
     }
 
-    // Register this Entity on the board. Notify Pieces that previously saw the target Entity
+    // Represent this Entity on the board
     protected void setAt(int x, int y){
         row = x;
         col = y;
-        Entity target = Chess.board[x][y];
         Chess.board[row][col] = this;
+    }
+
+    // Register this Entity on the board. Notify Pieces that previously saw the target Entity
+    protected void capture(int x, int y){
+        Entity target = Chess.board[x][y];
+        setAt(x, y);
         target.removeFromBoard();
     }
 
     // Register this Entity on the board in its assigned location
     public void place(){
-        setAt(row, col);
+        capture(row, col);
     }
     
     // Remove this Entity from the board in the case of a move or capture. Notify Pieces that previously saw this Entity
     protected void removeFromBoard(){
-        notifyPieces();
+        signalAttackingPieces();
         seenBy.clear();
     }
 
     // Refresh the paths in which this Entity was previously seen in the case of a move or capture
-    protected void notifyPieces(){
+    private void signalAttackingPieces(){
         HashSet<Piece> copy = new HashSet<>(seenBy.keySet());
         
         for (Piece piece: copy){

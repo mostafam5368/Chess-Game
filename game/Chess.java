@@ -23,27 +23,25 @@ public class Chess
         opponents.put(black, white);
 
         prepBoard();
-        // placePieces();
+        placePieces();
 
-        white.place();
-        white.move(7, 0);
-        new Pawn(white, 6, 0).place();
-        new Rook(white, 6, 1).place();
-        new Bishop(black, 4, 3).place();
-        Queen checking = new Queen(black, 0, 7);
-        checking.place();
+        // white.place();
+        // white.move(7, 0);
+        // new Pawn(white, 6, 0).place();
+        // new Rook(white, 6, 1).place();
+        // new Bishop(black, 4, 3).place();
+        // new Queen(black, 0, 7).place();
 
-        turn++;
+        // turn++;
 
         do {
-            System.out.println(checking.seenEntities.keySet());
             playTurn();
             white.win = black.inCheckmate();
             black.win = white.inCheckmate();
         } while (!white.win && !black.win);
 
         clearScreen();
-        printBoard();
+        printBoard(true);
 
         if (white.win){
             System.out.println(white.team + " win.");
@@ -54,13 +52,19 @@ public class Chess
     }
 
     public static void playTurn(){
+        playTurn(true);
+    }
+
+    private static void playTurn(boolean alternateTurns){
         clearScreen();
-        printBoard();
+        printBoard(true);
 
         if (turn % 2 == 0) prompt(white);
         else prompt(black);
 
-        turn++;
+        if (alternateTurns){
+            turn++;
+        }
     }
 
     // Return if the given x and y are legal bounds
@@ -117,9 +121,13 @@ public class Chess
         System.out.print("\033[H\033[2J");
         System.out.flush();
     }
+
+    private static void printBoard(){
+        printBoard(false);
+    }
     
     // Print the board in the terminal
-    private static void printBoard(){
+    private static void printBoard(boolean ignoreTurn){
         String blackMaterial = "";
         if (black.materialGained > white.materialGained) blackMaterial += "+" + (black.materialGained - white.materialGained);
         else blackMaterial += "--";
@@ -133,7 +141,7 @@ public class Chess
         String heightSpacing = "\n";
         String widthSpacing = "     ";
 
-        if (turn % 2 == 0){   // white view
+        if (turn % 2 == 0 || ignoreTurn){   // white view
             System.out.println(blackMaterial);
 
             for (int i = 0; i < board.length; i++){
@@ -206,13 +214,14 @@ public class Chess
         } while (filteredPieces.size() > 1 || filteredPieces.isEmpty());
 
         Piece moving = filteredPieces.get(0);
+        Entity target = board[x][y];
         
         if (!moving.attempt(x, y)){
             prompt(player);
             return;
         }
 
-        player.materialGained += notation.targetSquare.materialValue;
+        player.materialGained += target.materialValue;
     }
 
     public static boolean legalBounds(int x, int y){

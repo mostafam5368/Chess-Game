@@ -14,7 +14,13 @@ public final class Rook extends Piece
 
         hasMoved = false;
 
-        dirRelativeToKing = -(king.col - col) / Math.abs(king.col - col);
+        if (col == king.col){
+            dirRelativeToKing = 0;
+        }
+        else {
+            dirRelativeToKing = -(king.col - col) / Math.abs(king.col - col);
+        }
+
         kingCastle = king.col + dirRelativeToKing * 2;
         
         moveset = new int[][]{
@@ -37,7 +43,7 @@ public final class Rook extends Piece
 
         if (success){
             if (!hasMoved){
-                Chess.board[king.row][kingCastle].seenBy.replace(king, false);
+                Chess.board[king.row][kingCastle].seenBy.remove(king);
                 hasMoved = true;
             }
         }

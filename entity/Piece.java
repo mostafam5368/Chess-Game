@@ -13,7 +13,7 @@ public abstract class Piece extends Entity
     protected int reach;
     protected int[][] moveset;
     protected King king;
-    public HashMap<Entity, Path> seenEntities;
+    protected HashMap<Entity, Path> seenEntities;
 
     // Royal
     public Piece(String t, int r, int c){
@@ -89,14 +89,13 @@ public abstract class Piece extends Entity
             return !isAlly(target) && captureRule.isInstance(target);
         }
 
-        // Build or shrink a Path to reflect a piece's vision on the board
+        // Build or shrink a Path to reflect a change on the board
         protected void refreshAt(Entity oldEntity){
             Entity refreshedEntity = Chess.board[oldEntity.row][oldEntity.col];
             int indexOnPath = contents.indexOf(oldEntity);
 
             contents.set(indexOnPath, refreshedEntity);
             seenEntities.put(refreshedEntity, this);
-
             refreshedEntity.seenBy.put(Piece.this, canCapture(refreshedEntity));
 
             if (indexOnPath < contents.size() - 1){
@@ -132,7 +131,7 @@ public abstract class Piece extends Entity
 
     public void move(int x, int y){
         new Tile(row, col).place();
-        setAt(x, y);
+        capture(x, y);
         buildPaths();
     }
 
@@ -145,7 +144,7 @@ public abstract class Piece extends Entity
 
         if (inCheck()){
             target.place();
-            setAt(startingRow, startingCol);
+            capture(startingRow, startingCol);
             return false;
         }
 
@@ -157,15 +156,23 @@ public abstract class Piece extends Entity
         int originalCol = col;
 
         List<Entity> possibleCaptures = seenEntities.keySet().stream()
-        .filter(e -> e.seenBy.getOrDefault(this, false))
+        .filter(entity -> entity.seenBy.getOrDefault(this, false))
         .toList();
 
-        for (Entity e: possibleCaptures){
-            boolean success = attempt(e.row, e.col);
+        for (Entity entity: possibleCaptures){
+            // move, no building paths or blinding
+            new Tile(row, col).setAt(row, col);
+            super.removeFromBoard();
+            super.capture(entity.row, entity.col);
 
-            if (success){
-                setAt(originalRow, originalCol);
-                e.place();
+            boolean has = !inCheck();
+
+            // undo move, no building paths or blinding
+            entity.setAt(row, col);
+            super.removeFromBoard();
+            super.capture(originalRow, originalCol);
+
+            if (has){
                 return true;
             }
         }
@@ -179,8 +186,14 @@ public abstract class Piece extends Entity
     }
 
     @Override
-    public void place(){
-        super.place();
+    protected void setAt(int x, int y){
+        super.setAt(x, y);
+        buildPaths();
+    }
+
+    @Override
+    protected void capture(int x, int y){
+        super.capture(x, y);
         buildPaths();
     }
 
