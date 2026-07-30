@@ -1,6 +1,12 @@
 # <div align="center">Chess Game</div>
+
+<p align="center">
+   <img src="https://img.shields.io/badge/language-java-brightgreen?style=for-the-badge" />
+   <img src="https://img.shields.io/badge/architecture-oop-blue?style=for-the-badge" />
+</p>
+
 <div align="center">
-Chess program and move validator that simulates complete legal play inside the terminal. All possible positions in chess are attainable. No tutorials or generative AI used.
+Two-player chess program and move validator that simulates complete legal play inside the terminal. Key features include smart piece vision updates, input parsing that accounts for move ambiguity, king safety logic, checkmate detection, and more. All possible positions in chess are attainable.
 </div>
 
 
@@ -42,10 +48,10 @@ java main.Main
 * __Algebraic Notation__: Input moves by specifying piece type, except in the case of pawns, and destination square.
    * ex. `e4` = move pawn to e4
    * ex. `Qf3` = move queen to f3  
-* __Ambiguity__: Reprompts user if more than one ally piece of the same type can capture the destination square. Specify piece file/rank.
+* __Ambiguity__: Re-prompts user if more than one ally piece of the same type can capture the destination square. Specify piece file/rank.
    * ex. `Rae1` = move rook on file a to e1
    * ex. `Nc3e4` = move knight on c3 to e4  
-* __Castling__: Castling is inputted as a king move as inspired by [Chess.com](https://www.chess.com/) (ex. Kg1).
+* __Castling__: Castling is inputted as a king move for simplicity (ex. Kg1).
 * __Promoting__: Promote pawns by selecting the promotion piece from the pop-up menu when reaching the last rank.
 
 ### Opponent
