@@ -1,12 +1,7 @@
 # <div align="center">Chess Game</div>
 
-<p align="center">
-   <img src="https://img.shields.io/badge/language-java-brightgreen?style=for-the-badge" />
-   <img src="https://img.shields.io/badge/architecture-oop-blue?style=for-the-badge" />
-</p>
-
 <div align="center">
-Two-player chess program and move validator that simulates complete legal play inside the terminal. Key features include smart piece vision updates, input parsing that accounts for move ambiguity, king safety logic, checkmate detection, and more. All possible positions in chess are attainable.
+Two-player chess program and move validator that simulates complete legal play. Key features include smart piece vision updates, input parsing that accounts for move ambiguity, king safety logic, and checkmate detection.
 </div>
 
 
@@ -51,7 +46,7 @@ java main.Main
 * __Ambiguity__: Re-prompts user if more than one ally piece of the same type can capture the destination square. Specify piece file/rank.
    * ex. `Rae1` = move rook on file a to e1
    * ex. `Nc3e4` = move knight on c3 to e4  
-* __Castling__: Castling is inputted as a king move for simplicity (ex. Kg1).
+* __Castling__: Input castling as a king move (ex. Kg1).
 * __Promoting__: Promote pawns by selecting the promotion piece from the pop-up menu when reaching the last rank.
 
 ### Opponent
